@@ -1,25 +1,22 @@
 # StyleCart
 
-A full-stack e-commerce application featuring a modern shopping cart with product listings, detailed views, and cart management.
+A full-stack e-commerce application built with React and Node.js, featuring user authentication, product catalog, and shopping cart functionality.
 
 ## Features
 
-- Product catalog with search and filtering
-- Product detail pages
-- Shopping cart functionality
-- User authentication (backend setup)
+- User authentication with JWT
+- Product browsing and details
+- Shopping cart management
 - Responsive design with Tailwind CSS
-- Modern React frontend with Vite
-- Node.js backend with Express and MongoDB
+- RESTful API backend
 
 ## Tech Stack
 
 ### Frontend
 - React 19
 - Vite
-- React Router DOM
 - Tailwind CSS
-- ESLint
+- React Router DOM
 
 ### Backend
 - Node.js
@@ -29,77 +26,105 @@ A full-stack e-commerce application featuring a modern shopping cart with produc
 - bcryptjs for password hashing
 - CORS support
 
+## Prerequisites
+
+- Node.js (v14 or higher)
+- MongoDB (local or cloud instance)
+- npm or yarn
+
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Nandalal-cmd/CODSOFT.git
    cd stylecart
    ```
 
-2. Install backend dependencies:
+2. **Install backend dependencies:**
    ```bash
    cd backend
    npm install
    ```
 
-3. Install frontend dependencies:
+3. **Install frontend dependencies:**
    ```bash
    cd ../frontend
    npm install
    ```
 
-4. Set up environment variables:
-   - Copy `backend/.env` and configure your MongoDB connection and JWT secret
+4. **Set up environment variables:**
+
+   Create a `.env` file in the `backend` directory:
+   ```
+   MONGO_URI=mongodb://localhost:27017/stylecart
+   JWT_SECRET=your_super_secret_jwt_key_here
+   PORT=5000
+   ```
+
+   Replace `your_super_secret_jwt_key_here` with a strong secret key.
 
 ## Usage
 
-1. Start the backend server:
+1. **Start the backend server:**
    ```bash
    cd backend
-   npm run dev  # For development with nodemon
-   # or
-   npm start    # For production
-   ```
-   The backend will run on `http://localhost:3000` (or your configured port).
-
-2. Start the frontend development server:
-   ```bash
-   cd frontend
    npm run dev
    ```
-   The frontend will run on `http://localhost:5173` (default Vite port).
+   The backend will run on http://localhost:5000
 
-3. Open your browser and navigate to the frontend URL to use the application.
+2. **Start the frontend development server:**
+   ```bash
+   cd ../frontend
+   npm run dev
+   ```
+   The frontend will run on http://localhost:5173
+
+3. Open your browser and navigate to http://localhost:5173 to use the application.
 
 ## Available Scripts
 
 ### Backend
 - `npm start` - Start the production server
-- `npm run dev` - Start the development server with auto-reload
+- `npm run dev` - Start the development server with nodemon
 
 ### Frontend
 - `npm run dev` - Start the development server
 - `npm run build` - Build for production
-- `npm run lint` - Run ESLint
 - `npm run preview` - Preview the production build
+- `npm run lint` - Run ESLint
 
 ## Project Structure
 
 ```
 stylecart/
 ├── backend/
-│   ├── server.js
+│   ├── node_modules/
+│   ├── .env
 │   ├── package.json
-│   └── .env
+│   ├── package-lock.json
+│   └── server.js
 ├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── context/
-│   │   └── data/
 │   ├── public/
-│   └── package.json
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── data/
+│   │   ├── pages/
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── postcss.config.js
+│   ├── README.md
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── .gitignore
 └── README.md
 ```
 
@@ -113,4 +138,10 @@ stylecart/
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built with React and Vite
+- Styled with Tailwind CSS
+- Backend powered by Express.js and MongoDB
