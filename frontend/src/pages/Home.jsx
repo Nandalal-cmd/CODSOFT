@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from '../hooks/useProducts';
+import heroImage from '../assets/hero.png';
 
 const Home = () => {
   const { products, loading, error } = useProducts();
@@ -58,11 +59,11 @@ const Home = () => {
                 <img
                   alt="StyleCart hero"
                   className="h-[560px] w-full object-cover"
-                  src="/assets/hero.png"
+                  src={heroImage}
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,24,27,0.04),rgba(24,24,27,0.38))]" />
-                <div className="absolute inset-x-6 bottom-6 rounded-[2rem] border border-white/20 bg-[rgba(20,16,16,0.48)] px-6 py-5 text-white backdrop-blur-md">
-                  <p className="eyebrow text-[11px] font-semibold text-amber-200">Featured Mood</p>
+                <div className="absolute inset-x-6 bottom-6 rounded-[2rem] border border-white/20 bg-[rgba(20,16,16,0.48)] px-6 py-5 text-black backdrop-blur-md">
+                  <p className="eyebrow text-[11px] font-semibold text-black">Featured Mood</p>
                   <p className="display-title mt-3 text-3xl font-black">Soft tailoring. Warm tones. Strong silhouettes.</p>
                 </div>
               </div>
@@ -71,24 +72,24 @@ const Home = () => {
         </section>
 
         <section className="mt-10 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-          <div className="section-frame bg-[linear-gradient(135deg,#2b211d,#61453a)] p-8 text-white">
-            <p className="eyebrow text-xs font-bold text-amber-200">Editorial Pick</p>
-            <h2 className="display-title mt-4 text-4xl font-black">Build a wardrobe around fewer, better pieces.</h2>
-            <p className="mt-4 max-w-lg text-base leading-7 text-orange-100/90">
-              From relaxed denim to clean dresses, each category is styled to feel cohesive and easy to wear.
-            </p>
-          </div>
+            <div className="section-frame bg-[linear-gradient(135deg,#2b211d,#61453a)] p-8 text-black">
+              <p className="eyebrow text-xs font-bold text-black">Editor's Pick</p>
+              <h2 className="display-title mt-4 text-4xl font-black">Build a wardrobe around fewer, better pieces.</h2>
+              <p className="mt-4 max-w-lg text-base leading-7 text-black">
+                From relaxed denim to clean dresses, each category is styled to feel cohesive and easy to wear.
+              </p>
+            </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="section-frame bg-[linear-gradient(145deg,#e85d75,#f08d6b)] p-8 text-white">
-              <p className="eyebrow text-xs font-bold text-white/70">Special Drop</p>
+            <div className="section-frame bg-[linear-gradient(145deg,#e85d75,#f08d6b)] p-8 text-black">
+              <p className="eyebrow text-xs font-bold text-black">Special Drop</p>
               <h3 className="display-title mt-4 text-4xl font-black">Buy 2 Get 1 Free</h3>
-              <p className="mt-4 text-lg text-white/90">On tees, hoodies, and easy layering pieces.</p>
+              <p className="mt-4 text-lg text-black">On tees, hoodies, and easy layering pieces.</p>
             </div>
             <div className="section-frame bg-[linear-gradient(145deg,#f8f4ec,#fffefd)] p-8">
-              <p className="eyebrow text-xs font-bold text-[var(--accent-terracotta)]">Limited Offer</p>
-              <h3 className="display-title mt-4 text-4xl font-black text-slate-900">20% Off Dresses</h3>
-              <p className="mt-4 text-lg text-slate-600">A softer, brighter edit built for weekends and events.</p>
+              <p className="eyebrow text-xs font-bold text-black">Limited Offer</p>
+              <h3 className="display-title mt-4 text-4xl font-black text-black">20% Off Dresses</h3>
+              <p className="mt-4 text-lg text-black">A softer, brighter edit built for weekends and events.</p>
             </div>
           </div>
         </section>
@@ -96,11 +97,11 @@ const Home = () => {
         <section className="mt-12">
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="eyebrow text-xs font-bold text-[var(--accent-terracotta)]">Home Catalog</p>
-              <h2 className="display-title mt-3 text-4xl font-black text-slate-900 md:text-5xl">
+              <p className="eyebrow text-xs font-bold text-black">Home Catalog</p>
+              <h2 className="display-title mt-3 text-4xl font-black text-black md:text-5xl">
                 Browse every product right from the home page.
               </h2>
-              <p className="mt-3 max-w-2xl text-lg text-slate-600">
+              <p className="mt-3 max-w-2xl text-lg text-black">
                 Explore the full StyleCart lineup below without leaving the landing page.
               </p>
             </div>

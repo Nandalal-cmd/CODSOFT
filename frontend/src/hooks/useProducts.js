@@ -11,6 +11,7 @@ function normalizeDemoProduct(product) {
     sizes: product.sizes || ['S', 'M', 'L', 'XL'],
     colors: product.colors || ['Black', 'White', 'Blue'],
     featured: Boolean(product.featured),
+    images: product.images || (product.image ? [product.image] : []),
   };
 }
 

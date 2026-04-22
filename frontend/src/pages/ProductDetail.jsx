@@ -59,6 +59,12 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState('M');
   const [selectedColor, setSelectedColor] = useState('Black');
   const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+  
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [reviewerName, setReviewerName] = useState('');
+  const [reviewText, setReviewText] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -99,6 +105,10 @@ const ProductDetail = () => {
 
     loadProduct();
 
+    // Load reviews from localStorage
+    const storedReviews = JSON.parse(localStorage.getItem(`reviews_${id}`)) || [];
+    setReviews(storedReviews);
+
     return () => {
       isMounted = false;
     };
@@ -127,6 +137,20 @@ const ProductDetail = () => {
     alert(`✅ ${product.name} (${selectedSize}, ${selectedColor}) added to cart!`);
   };
 
+  const handleAddReview = () => {
+    const name = reviewerName.trim();
+    const text = reviewText.trim();
+    if (name && text) {
+      const newReviews = [...reviews, { name, text, date: new Date().toLocaleDateString() }];
+      setReviews(newReviews);
+      localStorage.setItem(`reviews_${id}`, JSON.stringify(newReviews));
+      setReviewerName('');
+      setReviewText('');
+    } else {
+      alert('Please fill in both name and review.');
+    }
+  };
+
   return (
     <div className="page-shell px-6 py-10">
       <div className="mx-auto max-w-7xl">
@@ -142,7 +166,7 @@ const ProductDetail = () => {
             <div className="section-frame overflow-hidden p-4 md:p-5">
               <div className="relative mx-auto h-[400px] w-full max-w-[500px] overflow-hidden rounded-[2rem] md:h-[480px]">
                 <img
-                  src={product.image}
+                  src={product.images?.[selectedImage] || product.image}
                   alt={product.name}
                   className="h-full w-full object-cover"
                 />
@@ -153,6 +177,28 @@ const ProductDetail = () => {
                   </div>
                 ) : null}
               </div>
+              
+              {product.images && product.images.length > 1 && (
+                <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+                  {product.images.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative h-20 w-16 flex-shrink-0 overflow-hidden rounded-xl border-2 transition ${
+                        selectedImage === index
+                          ? 'border-[var(--accent-coral)]'
+                          : 'border-transparent hover:border-gray-300'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`View ${index + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <section className="section-frame p-7">
@@ -266,6 +312,15 @@ const ProductDetail = () => {
 
               <p className="mt-6 text-lg leading-8 text-slate-600">{story.intro}</p>
 
+              <div className="mt-4">
+                <button
+                  onClick={() => navigate(`/product/${id}/description`)}
+                  className="text-[var(--accent-coral)] font-semibold hover:underline"
+                >
+                  Read full description →
+                </button>
+              </div>
+
               <div className="mt-8 grid gap-4 md:grid-cols-3">
                 {story.highlights.map((item) => (
                   <div key={item} className="rounded-[1.5rem] border border-[rgba(120,96,74,0.12)] bg-white/75 p-4 text-sm font-semibold text-slate-700">
@@ -309,6 +364,53 @@ const ProductDetail = () => {
                     </li>
                   ))}
                 </ul>
+              </section>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="mx-auto w-full max-w-[760px] mt-8">
+              <section className="section-frame p-7">
+                <h2 className="text-xl font-semibold text-slate-900 mb-6">Reviews</h2>
+                
+                {/* Add Review Form */}
+                <div className="mb-8 p-6 bg-gray-50 rounded-2xl">
+                  <h3 className="text-lg font-semibold text-slate-700 mb-4">Write a Review</h3>
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    value={reviewerName}
+                    onChange={(e) => setReviewerName(e.target.value)}
+                    className="w-full px-4 py-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--accent-coral)]"
+                  />
+                  <textarea
+                    placeholder="Write your review..."
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--accent-coral)] resize-none"
+                  />
+                  <button
+                    onClick={handleAddReview}
+                    className="px-6 py-3 bg-[linear-gradient(135deg,var(--accent-coral),#f08d6b)] text-white font-semibold rounded-xl hover:opacity-95 transition"
+                  >
+                    Submit Review
+                  </button>
+                </div>
+
+                {/* Reviews List */}
+                <div className="space-y-4">
+                  {reviews.length === 0 ? (
+                    <p className="text-slate-500">No reviews yet. Be the first to review this product!</p>
+                  ) : (
+                    reviews.map((review, index) => (
+                      <div key={index} className="p-4 bg-gray-50 rounded-xl">
+                        <p className="font-semibold text-slate-700">{review.name}</p>
+                        <p className="text-sm text-slate-400 mb-2">{review.date}</p>
+                        <p className="text-slate-600">{review.text}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
               </section>
             </div>
           </div>

@@ -12,7 +12,7 @@ function Footer() {
     { label: 'Shop', href: '/shop' },
     { label: 'Offers', href: '/offers' },
     { label: 'Customer Login', href: '/login' },
-    { label: 'Admin Login', href: '/admin' },
+   
   ];
 
   return (

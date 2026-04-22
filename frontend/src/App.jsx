@@ -7,6 +7,7 @@ import Shop from './pages/Shop';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import ProductDetail from './pages/ProductDetail';
+import ProductDescription from './pages/ProductDescription';
 import Offers from './pages/Offers';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -29,6 +30,7 @@ function AppLayout() {
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/product/:id/description" element={<ProductDescription />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/admin" element={<AdminLogin />} />
