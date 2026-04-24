@@ -19,19 +19,19 @@ router.post('/', authGuard, async (req, res) => {
     const processedItems = [];
 
     for (const item of items) {
-      const dbProduct = await Product.findById(item.product);
+      const dbProduct = await Product.findByPk(item.product);
       if (!dbProduct) {
         return res.status(404).json({ message: `Product ${item.name} not found.` });
       }
 
-      const price = dbProduct.price;
-      const discount = dbProduct.discount || 0;
+      const price = parseFloat(dbProduct.price);
+      const discount = parseFloat(dbProduct.discount) || 0;
       const finalPrice = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
-      
+
       calculatedTotal += finalPrice * item.quantity;
-      
+
       processedItems.push({
-        product: dbProduct._id,
+        product: dbProduct.id,
         name: dbProduct.name,
         price: finalPrice,
         quantity: item.quantity,
@@ -40,24 +40,24 @@ router.post('/', authGuard, async (req, res) => {
       });
     }
 
-    const order = new Order({
-      user: req.user._id,
+    const orderData = {
+      userId: req.user.id,
       items: processedItems,
       totalAmount: calculatedTotal,
       paymentMethod,
       shippingAddress,
-    });
+    };
 
     if (paymentMethod === 'upi' || paymentMethod === 'paytm') {
-      order.paymentStatus = 'paid';
+      orderData.paymentStatus = 'paid';
     }
 
-    await order.save();
+    const order = await Order.create(orderData);
 
     res.status(201).json({
       message: 'Order placed successfully',
       order: {
-        id: order._id,
+        id: order.id,
         totalAmount: order.totalAmount,
         paymentMethod: order.paymentMethod,
         paymentStatus: order.paymentStatus,
@@ -74,9 +74,20 @@ router.post('/', authGuard, async (req, res) => {
 // Get current user's orders (authenticated users)
 router.get('/', authGuard, async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id })
-      .populate('items.product', 'name image price')
-      .sort({ createdAt: -1 });
+    const orders = await Order.findAll({
+      where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Populate product details in items
+    for (const order of orders) {
+      for (const item of order.items) {
+        const product = await Product.findByPk(item.product, { attributes: ['name', 'image', 'price'] });
+        if (product) {
+          item.product = product;
+        }
+      }
+    }
 
     res.json(orders);
   } catch (error) {
@@ -88,10 +99,20 @@ router.get('/', authGuard, async (req, res) => {
 // Admin: Get all orders
 router.get('/admin/all', authGuard, requireRole('admin'), async (req, res) => {
   try {
-    const orders = await Order.find()
-      .populate('user', 'name email')
-      .populate('items.product', 'name image price')
-      .sort({ createdAt: -1 });
+    const orders = await Order.findAll({
+      include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Populate product details in items
+    for (const order of orders) {
+      for (const item of order.items) {
+        const product = await Product.findByPk(item.product, { attributes: ['name', 'image', 'price'] });
+        if (product) {
+          item.product = product;
+        }
+      }
+    }
 
     res.json(orders);
   } catch (error) {
@@ -109,15 +130,15 @@ router.patch('/admin/:id/status', authGuard, requireRole('admin'), async (req, r
     if (orderStatus) update.orderStatus = orderStatus;
     if (paymentStatus) update.paymentStatus = paymentStatus;
 
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { $set: update },
-      { new: true }
-    ).populate('user', 'name email');
+    const [affectedRows] = await Order.update(update, { where: { id: req.params.id } });
 
-    if (!order) {
+    if (affectedRows === 0) {
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    const order = await Order.findByPk(req.params.id, {
+      include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
+    });
 
     res.json({ message: 'Order updated successfully', order });
   } catch (error) {

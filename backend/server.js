@@ -1,13 +1,12 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const { Sequelize } = require('sequelize');
 const cors = require('cors');
 
 const { userRouter, adminRouter } = require('./routes/auth');
 const { publicProductRouter, adminProductRouter } = require('./routes/products');
 const orderRouter = require('./routes/orders');
-const Product = require('./models/Product');
-const User = require('./models/User');
+const { Product, User, Order } = require('./models');
 const defaultProducts = require('./data/defaultProducts');
 
 const app = express();
@@ -51,7 +50,7 @@ async function ensureSystemAdmin() {
     throw new Error('ADMIN_PASSWORD must be at least 6 characters long.');
   }
 
-  const existingAdmin = await User.findOne({ email: adminEmail }).select('+password');
+  const existingAdmin = await User.findOne({ where: { email: adminEmail } });
 
   if (!existingAdmin) {
     await User.create({
@@ -89,18 +88,30 @@ async function ensureSystemAdmin() {
 }
 
 async function startServer() {
-  const mongoUri = process.env.MONGO_URI;
+  const databaseUrl = process.env.DATABASE_URL;
 
-  if (!mongoUri) {
-    throw new Error('MONGO_URI is missing. Add it to backend/.env before starting the server.');
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is missing. Add it to backend/.env before starting the server.');
   }
 
-  await mongoose.connect(mongoUri);
-  console.log('MongoDB connected');
+  const sequelize = new Sequelize(databaseUrl, {
+    dialect: 'postgres',
+    logging: false,
+  });
+
+  await sequelize.authenticate();
+  console.log('PostgreSQL connected');
+
+  // Sync models
+  await sequelize.sync();
+
+  // Make sequelize available to models
+  require('./models').init(sequelize);
+
   await ensureSystemAdmin();
-  const existingProducts = await Product.countDocuments();
+  const existingProducts = await Product.count();
   if (existingProducts === 0) {
-    await Product.insertMany(defaultProducts);
+    await Product.bulkCreate(defaultProducts);
     console.log('Default products seeded');
   }
 

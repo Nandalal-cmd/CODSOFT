@@ -1,57 +1,54 @@
-const mongoose = require('mongoose');
+const { DataTypes, Model } = require('sequelize');
 
-const orderSchema = new mongoose.Schema(
-  {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    items: [
+class Order extends Model {
+  static init(sequelize) {
+    super.init(
       {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Product',
-          required: true,
+        id: {
+          type: DataTypes.INTEGER,
+          primaryKey: true,
+          autoIncrement: true,
         },
-        name: String,
-        price: Number,
-        quantity: Number,
-        selectedSize: String,
-        selectedColor: String,
+        userId: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'Users',
+            key: 'id',
+          },
+        },
+        items: {
+          type: DataTypes.JSON,
+          allowNull: false,
+        },
+        totalAmount: {
+          type: DataTypes.DECIMAL(10, 2),
+          allowNull: false,
+        },
+        paymentMethod: {
+          type: DataTypes.ENUM('cod', 'upi', 'paytm'),
+          allowNull: false,
+        },
+        paymentStatus: {
+          type: DataTypes.ENUM('pending', 'paid', 'failed'),
+          defaultValue: 'pending',
+        },
+        orderStatus: {
+          type: DataTypes.ENUM('placed', 'processing', 'shipped', 'delivered', 'cancelled'),
+          defaultValue: 'placed',
+        },
+        shippingAddress: {
+          type: DataTypes.JSON,
+          allowNull: true,
+        },
       },
-    ],
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
-    paymentMethod: {
-      type: String,
-      enum: ['cod', 'upi', 'paytm'],
-      required: true,
-    },
-    paymentStatus: {
-      type: String,
-      enum: ['pending', 'paid', 'failed'],
-      default: 'pending',
-    },
-    orderStatus: {
-      type: String,
-      enum: ['placed', 'processing', 'shipped', 'delivered', 'cancelled'],
-      default: 'placed',
-    },
-    shippingAddress: {
-      name: String,
-      address: String,
-      city: String,
-      state: String,
-      pincode: String,
-      phone: String,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
+      {
+        sequelize,
+        modelName: 'Order',
+        timestamps: true,
+      },
+    );
+  }
+}
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = Order;

@@ -8,14 +8,14 @@ const adminProductRouter = express.Router();
 
 function sanitizeProduct(product) {
   return {
-    id: product._id,
+    id: product.id,
     name: product.name,
     description: product.description,
-    price: product.price,
+    price: parseFloat(product.price),
     category: product.category,
     image: product.image,
     images: product.images,
-    discount: product.discount,
+    discount: parseFloat(product.discount),
     stock: product.stock,
     sizes: product.sizes,
     colors: product.colors,
@@ -78,7 +78,7 @@ function validateProductPayload(payload) {
 
 publicProductRouter.get('/', async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.findAll({ order: [['createdAt', 'DESC']] });
     res.json({ products: products.map(sanitizeProduct) });
   } catch (error) {
     res.status(500).json({ message: 'Unable to load products.' });
@@ -87,7 +87,7 @@ publicProductRouter.get('/', async (req, res) => {
 
 publicProductRouter.get('/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findByPk(req.params.id);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found.' });
@@ -129,14 +129,13 @@ adminProductRouter.put('/products/:id', async (req, res) => {
       return res.status(400).json({ message: validationError });
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, payload, {
-      new: true,
-      runValidators: true,
-    });
+    const [affectedRows] = await Product.update(payload, { where: { id: req.params.id } });
 
-    if (!product) {
+    if (affectedRows === 0) {
       return res.status(404).json({ message: 'Product not found.' });
     }
+
+    const product = await Product.findByPk(req.params.id);
 
     return res.json({
       message: 'Product updated successfully.',
@@ -149,9 +148,9 @@ adminProductRouter.put('/products/:id', async (req, res) => {
 
 adminProductRouter.delete('/products/:id', async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const deletedRows = await Product.destroy({ where: { id: req.params.id } });
 
-    if (!product) {
+    if (deletedRows === 0) {
       return res.status(404).json({ message: 'Product not found.' });
     }
 

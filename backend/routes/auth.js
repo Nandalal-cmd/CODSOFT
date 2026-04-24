@@ -12,7 +12,7 @@ const adminRouter = express.Router();
 function createToken(user) {
   return jwt.sign(
     {
-      id: user._id,
+      id: user.id,
       role: user.role,
       email: user.email,
     },
@@ -23,7 +23,7 @@ function createToken(user) {
 
 function sanitizeUser(user) {
   return {
-    id: user._id,
+    id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
@@ -55,7 +55,7 @@ function buildRegisterHandler(role) {
 
       const { name, email, password } = req.body;
       const normalizedEmail = email.toLowerCase().trim();
-      const existingUser = await User.findOne({ email: normalizedEmail });
+      const existingUser = await User.findOne({ where: { email: normalizedEmail } });
 
       if (existingUser) {
         return res.status(409).json({ message: 'An account with this email already exists.' });
@@ -89,7 +89,7 @@ function buildLoginHandler(role) {
       }
 
       const normalizedEmail = email.toLowerCase().trim();
-      const user = await User.findOne({ email: normalizedEmail }).select('+password');
+      const user = await User.findOne({ where: { email: normalizedEmail } });
 
       if (!user || user.role !== role) {
         return res.status(401).json({ message: 'Invalid credentials for this portal.' });
@@ -114,21 +114,19 @@ function buildLoginHandler(role) {
 
 async function getAdminOverview(req, res) {
   try {
-    const [customerCount, adminCount, productCount, orderCount, recentUsers, recentOrders] = await Promise.all([
-      User.countDocuments({ role: 'user' }),
-      User.countDocuments({ role: 'admin' }),
-      Product.countDocuments(),
-      Order.countDocuments(),
-      User.find().sort({ createdAt: -1 }).limit(5).select('-password'),
-      Order.find().sort({ createdAt: -1 }).limit(5).populate('user', 'name email'),
+    const [customerCount, adminCount, productCount, orderCount, recentUsers, recentOrders, totalRevenue] = await Promise.all([
+      User.count({ where: { role: 'user' } }),
+      User.count({ where: { role: 'admin' } }),
+      Product.count(),
+      Order.count(),
+      User.findAll({ order: [['createdAt', 'DESC']], limit: 5 }),
+      Order.findAll({
+        order: [['createdAt', 'DESC']],
+        limit: 5,
+        include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
+      }),
+      Order.sum('totalAmount', { where: { paymentStatus: 'paid' } }),
     ]);
-
-    // Calculate total revenue
-    const revenueResult = await Order.aggregate([
-      { $match: { paymentStatus: 'paid' } },
-      { $group: { _id: null, total: { $sum: '$totalAmount' } } },
-    ]);
-    const totalRevenue = revenueResult[0]?.total || 0;
 
     res.json({
       stats: {
@@ -140,7 +138,7 @@ async function getAdminOverview(req, res) {
       },
       recentUsers: recentUsers.map(sanitizeUser),
       recentOrders: recentOrders.map((o) => ({
-        id: o._id,
+        id: o.id,
         user: o.user ? { name: o.user.name, email: o.user.email } : null,
         totalAmount: o.totalAmount,
         paymentMethod: o.paymentMethod,
