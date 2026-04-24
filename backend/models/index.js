@@ -14,9 +14,6 @@ function init(db) {
   // Define associations
   Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
   User.hasMany(Order, { foreignKey: 'userId' });
-
-  // Sync associations
-  sequelize.sync();
 }
 
 module.exports = {

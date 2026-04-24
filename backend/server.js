@@ -108,6 +108,9 @@ async function startServer() {
   // Make sequelize available to models
   require('./models').init(sequelize);
 
+  // Sync database
+  await sequelize.sync();
+
   await ensureSystemAdmin();
   const existingProducts = await Product.count();
   if (existingProducts === 0) {
